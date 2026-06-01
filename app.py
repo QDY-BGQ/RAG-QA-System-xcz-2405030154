@@ -191,6 +191,44 @@ def main():
                     st.markdown(f"- {f}")
         
         st.markdown("---")
+        st.subheader("⚡ 快捷操作")
+        
+        if st.button("📂 从docs目录加载文档", use_container_width=True):
+            docs_dir = "docs"
+            if os.path.exists(docs_dir):
+                import glob
+                docx_files = glob.glob(os.path.join(docs_dir, "*.docx"))
+                pdf_files = glob.glob(os.path.join(docs_dir, "*.pdf"))
+                txt_files = glob.glob(os.path.join(docs_dir, "*.txt"))
+                all_files = docx_files + pdf_files + txt_files
+                
+                if all_files:
+                    class MockUploadedFile:
+                        def __init__(self, file_path):
+                            self.name = os.path.basename(file_path)
+                            self._file_path = file_path
+                        def getvalue(self):
+                            with open(self._file_path, 'rb') as f:
+                                return f.read()
+                    
+                    mock_files = [MockUploadedFile(f) for f in all_files]
+                    current_files = {f.name for f in mock_files}
+                    pending_files = [f for f in mock_files if f.name not in st.session_state.uploaded_files]
+                    
+                    if pending_files:
+                        st.session_state.pending_files = pending_files
+                        st.success(f"发现 {len(pending_files)} 个待处理文件")
+                        documents = process_uploaded_files(pending_files)
+                        if documents:
+                            build_or_update_knowledge_base(documents)
+                    else:
+                        st.info("所有文件已处理")
+                else:
+                    st.warning("docs目录中没有找到文档")
+            else:
+                st.error("docs目录不存在")
+        
+        st.markdown("---")
         
         if st.button("🗑️ 清空对话历史", use_container_width=True):
             clear_chat_history()
