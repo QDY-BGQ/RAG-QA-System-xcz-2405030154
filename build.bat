@@ -1,55 +1,60 @@
 @echo off
 chcp 65001
-echo ========================================
-echo  RAG智能问答系统 - 打包脚本
-echo ========================================
+echo ============================================
+echo RAG智能问答系统 - 打包脚本
+echo ============================================
 echo.
-echo [1/4] 清理旧的打包文件...
-if exist build rmdir /s /q build
-if exist dist rmdir /s /q dist
-if exist RAG-QA-System.spec del /q RAG-QA-System.spec
-echo ✓ 清理完成
-echo.
-echo [2/4] 检查依赖...
-python -c "import streamlit; import langchain; import chromadb; print('✓ 依赖检查通过')"
-if errorlevel 1 (
-    echo ✗ 依赖检查失败，请先安装所有依赖包
-    echo 执行: pip install -r requirements.txt
+
+echo [1/4] 检查虚拟环境...
+if not exist "venv\Scripts\activate.bat" (
+    echo 错误: 未找到虚拟环境，请先运行: python -m venv venv
     pause
     exit /b 1
 )
+
+echo [2/4] 激活虚拟环境...
+call venv\Scripts\activate.bat
+
+echo [3/4] 检查PyInstaller...
+pip show pyinstaller >nul 2>&1
+if errorlevel 1 (
+    echo 正在安装PyInstaller...
+    pip install pyinstaller
+)
+
+echo [4/4] 开始打包...
+echo 这可能需要几分钟时间，请耐心等待...
 echo.
-echo [3/4] 开始打包...
+
 pyinstaller ^
     --onefile ^
     --name RAG-QA-System ^
-    --icon NONE ^
-    --add-data "chroma_db;chroma_db" ^
-    --add-data "docs;docs" ^
+    --add-data "venv\Lib\site-packages\streamlit;streamlit" ^
+    --hidden-import streamlit ^
+    --hidden-import langchain ^
+    --hidden-import langchain_community ^
+    --hidden-import langchain_core ^
+    --hidden-import chromadb ^
+    --hidden-import pypdf ^
+    --hidden-import python_docx ^
     --collect-all streamlit ^
     --collect-all langchain ^
-    --collect-all chromadb ^
     --collect-all langchain_community ^
     --collect-all langchain_core ^
-    run_streamlit.py
-if errorlevel 1 (
-    echo ✗ 打包失败
-    pause
-    exit /b 1
-)
+    --collect-all chromadb ^
+    --collect-all pypdf ^
+    --collect-all python_docx ^
+    --runtime-hook run_streamlit.py ^
+    app.py
+
 echo.
-echo [4/4] 复制必要文件到dist目录...
-copy requirements.txt dist\
-copy README.md dist\
-if exist docs xcopy /e /i docs dist\docs\
-echo ✓ 打包完成！
+echo ============================================
+echo 打包完成！
+echo 可执行文件位于: dist\RAG-QA-System.exe
+echo ============================================
 echo.
-echo ========================================
-echo  可执行文件位置: dist\RAG-QA-System.exe
-echo ========================================
+echo 注意: 运行exe前请确保:
+echo 1. Ollama服务已启动
+echo 2. 已下载所需模型 (deepseek-r1:7b, nomic-embed-text)
 echo.
-echo 注意事项:
-echo 1. 运行前请确保Ollama服务已启动
- echo 2. 确保已下载模型: deepseek-r1:7b 和 nomic-embed-text
- echo 3. 首次运行会自动解压依赖文件，请耐心等待
- pause
+pause

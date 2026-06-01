@@ -17,7 +17,7 @@
 ### 安装步骤
 
 #### 1. 安装Ollama
-1. 访问 [Ollama官网](https://ollama.com/) 下载Windows版本安装包
+1. 访问 [Ollama官网](https://ollama.com/）下载Windows版本安装包
 2. 双击安装包完成安装
 3. 打开命令行，下载模型：
 ```bash
