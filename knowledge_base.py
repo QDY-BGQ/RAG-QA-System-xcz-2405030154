@@ -8,7 +8,7 @@ from typing import List, Optional
 from pathlib import Path
 
 from langchain_core.documents import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_community.document_loaders import PyPDFLoader, Docx2txtLoader, TextLoader
@@ -69,9 +69,9 @@ class KnowledgeBase:
                     doc = self.load_single_document(str(file_path))
                     if doc:
                         documents.extend(doc)
-                        print(f"✓ 已加载: {file_path.name}")
+                        print(f"[OK] 已加载: {file_path.name}")
                 except Exception as e:
-                    print(f"✗ 加载 {file_path.name} 时出错: {e}")
+                    print(f"[ERR] 加载 {file_path.name} 时出错: {e}")
         
         self.documents.extend(documents)
         return documents
@@ -159,7 +159,7 @@ class KnowledgeBase:
         )
         
         chunks = text_splitter.split_documents(documents)
-        print(f"✓ 文档分块完成，共 {len(chunks)} 个文本块")
+        print(f"[OK] 文档分块完成，共 {len(chunks)} 个文本块")
         return chunks
     
     def build_vector_store(self, documents: List[Document]) -> Chroma:
@@ -180,7 +180,7 @@ class KnowledgeBase:
             persist_directory=self.persist_directory
         )
         
-        print(f"✓ 向量数据库构建完成，共 {len(chunks)} 个文本块")
+        print(f"[OK] 向量数据库构建完成，共 {len(chunks)} 个文本块")
         return self.vector_store
     
     def update_vector_store(self, new_documents: List[Document]) -> Chroma:
@@ -199,7 +199,7 @@ class KnowledgeBase:
             self.vector_store = self.build_vector_store(new_documents)
         else:
             self.vector_store.add_documents(chunks)
-            print(f"✓ 向量数据库更新完成，新增 {len(chunks)} 个文本块")
+            print(f"[OK] 向量数据库更新完成，新增 {len(chunks)} 个文本块")
         
         return self.vector_store
     
@@ -216,10 +216,10 @@ class KnowledgeBase:
                     persist_directory=self.persist_directory,
                     embedding_function=self.embeddings
                 )
-                print(f"✓ 已加载现有向量数据库")
+                print(f"[OK] 已加载现有向量数据库")
                 return self.vector_store
             except Exception as e:
-                print(f"✗ 加载向量数据库失败: {e}")
+                print(f"[ERR] 加载向量数据库失败: {e}")
                 return None
         return None
     
@@ -285,4 +285,4 @@ class KnowledgeBase:
             import shutil
             shutil.rmtree(self.persist_directory)
             os.makedirs(self.persist_directory)
-        print("✓ 知识库已清空")
+        print("[OK] 知识库已清空")
