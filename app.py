@@ -1,6 +1,5 @@
 """
 Streamlit Web应用主入口：RAG智能问答系统
-AI生成部分：Streamlit界面布局、状态管理、交互逻辑由AI辅助生成
 """
 
 import os
@@ -26,7 +25,7 @@ def init_session_state():
         st.session_state.kb = KnowledgeBase(
             persist_directory="chroma_db",
             embedding_model="nomic-embed-text",
-            llm_model="deepseek-r1:7b",
+            llm_model="qwen2:0.5b",
             chunk_size=1000,
             chunk_overlap=200
         )
@@ -34,8 +33,8 @@ def init_session_state():
     
     if "rag" not in st.session_state:
         st.session_state.rag = RAGChain(
-            llm_model="deepseek-r1:7b",
-            temperature=0.1,
+            llm_model="qwen2:0.5b",
+            temperature=0.3,
             top_k=3
         )
         if st.session_state.kb.vector_store is not None:
@@ -163,8 +162,8 @@ def main():
                     st.session_state.uploaded_files = []
                     st.session_state.pending_files = []
                     st.session_state.rag = RAGChain(
-                        llm_model="deepseek-r1:7b",
-                        temperature=0.1,
+                        llm_model="qwen2:0.5b",
+                        temperature=0.3,
                         top_k=3
                     )
                     clear_chat_history()
