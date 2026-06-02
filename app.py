@@ -100,12 +100,12 @@ def build_or_update_knowledge_base(documents):
         with st.spinner("正在构建向量数据库..."):
             vector_store = kb.build_vector_store(documents)
             rag.set_vector_store(vector_store)
-            st.success(f"✓ 知识库构建完成！共 {len(documents)} 个文档")
+            st.success(f"知识库构建完成！共 {len(documents)} 个文档")
     else:
         with st.spinner("正在更新向量数据库..."):
             vector_store = kb.update_vector_store(documents)
             rag.set_vector_store(vector_store)
-            st.success(f"✓ 知识库更新完成！新增 {len(documents)} 个文档")
+            st.success(f"知识库更新完成！新增 {len(documents)} 个文档")
     
     st.session_state.pending_files = []
 
@@ -116,7 +116,7 @@ def display_chat_message(role, content, sources=None):
         st.markdown(content)
         
         if sources and role == "assistant":
-            with st.expander("📚 查看参考来源", expanded=False):
+            with st.expander("查看参考来源", expanded=False):
                 for i, doc in enumerate(sources, 1):
                     source = doc.metadata.get("source", "未知")
                     st.markdown(f"**[{i}] {source}**")
@@ -181,9 +181,9 @@ def main():
             st.metric("文本块数", stats["total_chunks"])
         
         if stats["vector_store_exists"]:
-            st.success("✓ 向量数据库已就绪")
+            st.success("向量数据库已就绪")
         else:
-            st.warning("⚠ 请先上传文档并构建知识库")
+            st.warning("请先上传文档并构建知识库")
         
         if st.session_state.uploaded_files:
             with st.expander("已上传文件列表", expanded=False):
@@ -260,7 +260,7 @@ def main():
                 st.markdown(answer)
                 
                 if sources:
-                    with st.expander("📚 查看参考来源", expanded=False):
+                    with st.expander("查看参考来源", expanded=False):
                         for i, doc in enumerate(sources, 1):
                             source = doc.metadata.get("source", "未知")
                             st.markdown(f"**[{i}] {source}**")
